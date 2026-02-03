@@ -60,6 +60,12 @@ export const ALLOWED_EXCEPTIONS = {
     example: 'https://www.php.net/docs.php',
     category: 'Programming Languages',
   },
+  RUBYDOC: {
+    pattern: 'https://rubydoc.info/',
+    name: 'RubyDoc',
+    example: 'https://rubydoc.info/gems/minitest',
+    category: 'Ruby',
+  },
   TAURI: {
     pattern: 'https://tauri.app/',
     name: 'Tauri',
