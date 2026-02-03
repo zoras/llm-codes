@@ -72,6 +72,12 @@ export const ALLOWED_EXCEPTIONS = {
     example: 'https://tauri.app/',
     category: 'Desktop Frameworks',
   },
+  DEEPWIKI: {
+    pattern: 'https://deepwiki.com/',
+    name: 'Deepwiki',
+    example: 'https://deepwiki.com/minitest/minitest',
+    category: 'Community',
+  },
 } as const;
 
 // Legacy support for specific domains that need special handling
