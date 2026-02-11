@@ -29,7 +29,14 @@ llm.codes converts JavaScript-heavy documentation sites into clean Markdown for 
    - Uses Firecrawl API for JavaScript rendering
    - Handles retries with exponential backoff
 
-2. **Content Processing Pipeline** (`/utils/`):
+2. **Crawl API** (`/api/crawl/`):
+   - `start/route.ts` — Initiates multi-page crawls via Firecrawl with cache-first deduplication
+   - `[jobId]/status/route.ts` — SSE endpoint streaming crawl progress and page content
+   - Cache-first: stores a URL manifest (`crawl:urls:{hash}`) on crawl completion; subsequent crawls of the same start URL spot-check the cache and skip Firecrawl entirely if warm (0 credits)
+   - Supports `force: true` in the request body to bypass cache and force a fresh Firecrawl crawl
+   - Circuit breaker integration protects against Firecrawl outages
+
+3. **Content Processing Pipeline** (`/utils/`):
    - `content-processing.ts`: Multi-stage filtering (navigation, URLs, deduplication)
    - `documentation-filter.ts`: Comprehensive content cleaning
    - `scraping.ts`: Parallel URL processing (20 concurrent)

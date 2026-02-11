@@ -27,6 +27,10 @@ File organization follows Next.js App Router conventions with `src/app` for rout
 - `src/app/api/scrape/batch/route.ts` - Batch URL processing for multi-page documentation
 - `src/app/api/cache/stats/route.ts` - Cache statistics endpoint for monitoring
 
+**Crawl Endpoints**
+- `src/app/api/crawl/start/route.ts` - Initiates multi-page crawls with cache-first deduplication (skips Firecrawl when all pages are cached)
+- `src/app/api/crawl/[jobId]/status/route.ts` - SSE stream of crawl progress, page content, and completion events
+
 **API Mocks**
 - `src/app/api/scrape/__mocks__/cache.ts` - Mock cache implementation for testing
 

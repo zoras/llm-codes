@@ -14,9 +14,11 @@ llm.codes is a Next.js application that converts JavaScript-heavy documentation 
 - Icons: Custom SVG icon generation in src/app/icon.tsx
 
 **API Layer** - Next.js API routes in src/app/api/
-- Single URL Scraping: src/app/api/scrape/route.ts (lines 9-164) 
+- Single URL Scraping: src/app/api/scrape/route.ts (lines 9-164)
 - Batch Processing: src/app/api/scrape/batch/route.ts (lines 23-180)
 - Cache Statistics: src/app/api/cache/stats/route.ts
+- Crawl Start: src/app/api/crawl/start/route.ts - Initiates multi-page crawls with cache-first deduplication
+- Crawl Status: src/app/api/crawl/[jobId]/status/route.ts - SSE stream of crawl progress and page content
 
 **Caching Layer** - Dual-layer caching in src/lib/cache/redis-cache.ts
 - L1 Cache: In-memory Map with 5-minute TTL (line 24)
@@ -104,6 +106,20 @@ Processing starts → Real-time logs via setLogs()
 → Progress calculation from completed/total URLs
 → UI updates with stats (lines, size, URLs)
 → Optional browser notifications on completion
+```
+
+**8. Crawl API Flow** (src/app/api/crawl/)
+```typescript
+POST /api/crawl/start { url, limit, force? }
+→ Validate URL → Check circuit breaker
+→ Cache-first: getCrawlUrlMap(url) → spot-check 3 sample URLs via mget
+→ If all cached: create synthetic "cache_hit" job → return jobId (0 credits)
+→ If miss: call Firecrawl API → store job metadata → return jobId
+
+GET /api/crawl/{jobId}/status (SSE stream)
+→ If cache_hit: iterate crawledUrls → serve each from cache → send "complete"
+→ If crawling: poll Firecrawl → stream url_complete events → cache each page
+→ On completion: store URL manifest via setCrawlUrlMap for future cache-first hits
 ```
 
 **Error Handling Flow**

@@ -37,8 +37,9 @@ llm.codes is a high-performance web service that converts JavaScript-heavy docum
 - Content filtering pipeline - `src/utils/content-processing.ts`, `src/utils/documentation-filter.ts`
 
 **Caching & Performance**:
-- Upstash Redis with LZ compression - `src/lib/cache/redis-cache.ts` (lines 1-323)
-- Two-tier caching (L1 memory + L2 Redis) - `src/lib/cache/redis-cache.ts` (lines 104-134)
+- Upstash Redis with LZ compression - `src/lib/cache/redis-cache.ts`
+- Two-tier caching (L1 memory + L2 Redis) - `src/lib/cache/redis-cache.ts`
+- Cache-first crawl deduplication: stores URL manifests on crawl completion, skips Firecrawl on repeat crawls when cache is warm
 - Batch processing (20 URLs concurrent) - `src/constants.ts` (line 442)
 
 **Testing & Quality**:
