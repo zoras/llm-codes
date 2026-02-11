@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { isValidDocumentationUrl } from '@/utils/url-utils';
 import { PROCESSING_CONFIG } from '@/constants';
 import { cacheService } from '@/lib/cache/redis-cache';
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { url, limit = 10 } = body;
+    const { url, limit = 10, force = false } = body;
 
     // Enforce hard limit on max URLs
     const enforcedLimit = Math.min(limit, PROCESSING_CONFIG.MAX_ALLOWED_URLS);
@@ -42,6 +43,43 @@ export async function POST(request: NextRequest) {
         },
         { status: 503 }
       );
+    }
+
+    // Check if we have cached results from a previous crawl of this URL
+    if (!force) {
+      const cachedUrls = await cacheService.getCrawlUrlMap(url);
+      if (cachedUrls && cachedUrls.length > 0) {
+        // Spot-check a sample of URLs to verify cache is still warm
+        const sample = cachedUrls.slice(0, Math.min(3, cachedUrls.length));
+        const cached = await cacheService.mget(sample);
+        const allCached = sample.every(u => cached.get(u) !== null);
+
+        if (allCached) {
+          const jobId = crypto.randomUUID();
+          await cacheService.setCrawlJob(jobId, {
+            id: jobId,
+            url,
+            limit: enforcedLimit,
+            status: 'cache_hit',
+            startedAt: new Date().toISOString(),
+            totalPages: cachedUrls.length,
+            completedPages: cachedUrls.length,
+            failedPages: 0,
+            creditsUsed: 0,
+            crawledUrls: cachedUrls,
+          });
+
+          console.info(`[CACHE HIT] Crawl for ${url}: ${cachedUrls.length} pages served from cache (0 credits)`);
+
+          return NextResponse.json({
+            success: true,
+            jobId,
+            url,
+            limit: enforcedLimit,
+            cached: true,
+          });
+        }
+      }
     }
 
     try {

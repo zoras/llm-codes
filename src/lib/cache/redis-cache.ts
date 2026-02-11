@@ -40,6 +40,7 @@ interface CrawlJobMetadata {
   expiresAt?: string;
   next?: string;
   lastPageNumber?: number;
+  crawledUrls?: string[];
 }
 
 interface CrawlResult {
@@ -668,6 +669,39 @@ export class RedisCache {
     }
 
     return results;
+  }
+
+  /**
+   * Store the list of URLs discovered during a crawl, keyed by start URL.
+   * Used to check if a future crawl can be served entirely from cache.
+   */
+  async setCrawlUrlMap(startUrl: string, urls: string[], ttl: number = this.ttl): Promise<void> {
+    const hash = crypto.createHash('sha256').update(normalizeUrl(startUrl)).digest('hex').substring(0, 32);
+    const key = `crawl:urls:${hash}`;
+    if (this.redis) {
+      try {
+        await this.redis.set(key, urls, { ex: ttl });
+      } catch (error) {
+        console.error('Failed to store crawl URL map:', error);
+      }
+    }
+  }
+
+  /**
+   * Retrieve the list of URLs from a previous crawl of the given start URL.
+   */
+  async getCrawlUrlMap(startUrl: string): Promise<string[] | null> {
+    const hash = crypto.createHash('sha256').update(normalizeUrl(startUrl)).digest('hex').substring(0, 32);
+    const key = `crawl:urls:${hash}`;
+    if (this.redis) {
+      try {
+        return await this.redis.get(key);
+      } catch (error) {
+        console.error('Failed to get crawl URL map:', error);
+        return null;
+      }
+    }
+    return null;
   }
 }
 

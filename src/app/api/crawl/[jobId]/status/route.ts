@@ -70,6 +70,23 @@ export async function GET(
         // Keep track of URLs we've already sent to avoid duplicates
         const sentUrls = new Set<string>();
 
+        // Fast path: if job was created from cache, serve cached content directly
+        if (jobMetadata.status === 'cache_hit' && jobMetadata.crawledUrls) {
+          for (const url of jobMetadata.crawledUrls) {
+            const content = await cacheService.get(url);
+            if (content) {
+              controller.enqueue(sendMessage({ type: 'url_complete', url, content, cached: true }));
+            }
+          }
+          controller.enqueue(sendMessage({
+            type: 'complete',
+            total: jobMetadata.crawledUrls.length,
+            creditsUsed: 0,
+          }));
+          controller.close();
+          return;
+        }
+
         while (!isComplete && Date.now() - startTime < maxPollingTime) {
           try {
             // Check crawl status with Firecrawl
@@ -231,6 +248,11 @@ export async function GET(
                   status: 'completed',
                   completedAt: new Date().toISOString(),
                 });
+
+                // Store discovered URLs for cache-first deduplication on future crawls
+                if (sentUrls.size > 0) {
+                  await cacheService.setCrawlUrlMap(jobMetadata.url, Array.from(sentUrls));
+                }
 
                 controller.enqueue(
                   sendMessage({
