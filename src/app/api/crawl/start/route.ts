@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { url, limit = 10, force = false } = body;
+    const { url, limit = 10, maxDepth = 2, force = false } = body;
 
     // Enforce hard limit on max URLs
     const enforcedLimit = Math.min(limit, PROCESSING_CONFIG.MAX_ALLOWED_URLS);
@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           url,
           limit: enforcedLimit,
+          maxDepth: Math.min(maxDepth, PROCESSING_CONFIG.MAX_CRAWL_DEPTH),
           scrapeOptions: {
             formats: ['markdown'],
             onlyMainContent: true,

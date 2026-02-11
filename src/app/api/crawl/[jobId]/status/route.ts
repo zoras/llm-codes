@@ -359,6 +359,13 @@ export async function GET(
           );
         }
 
+        // Store URL map as a fallback for any exit path (timeout, errors, etc.)
+        // The completion handler stores it too, but this catches interrupted crawls
+        // so subsequent crawls can still benefit from whatever was already cached.
+        if (sentUrls.size > 0) {
+          await cacheService.setCrawlUrlMap(jobMetadata.url, Array.from(sentUrls));
+        }
+
         controller.close();
       },
     });
