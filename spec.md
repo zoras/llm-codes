@@ -83,8 +83,9 @@ The Web Documentation to Markdown Converter supports 69 documentation sites acro
 - **Swift** (`https://docs.swift.org`)
 - **Kotlin** (`https://kotlinlang.org/docs`)
 
-### Web Frameworks (10 sites)
+### Web Frameworks (11 sites)
 
+- **Rails** (`https://guides.rubyonrails.org`)
 - **React** (`https://react.dev`)
 - **Vue.js** (`https://vuejs.org`)
 - **Angular** (`https://angular.io/docs`)
@@ -279,7 +280,7 @@ const batchPromises = batchToProcess.map(async (url) => {
     // Extract links for next depth level
     if (currentDepth < maxDepth && content) {
       const links = extractLinks(content, baseUrl);
-      links.forEach(link => newUrls.add(link));
+      links.forEach((link) => newUrls.add(link));
     }
     return { url, content };
   } catch (error) {
@@ -335,38 +336,38 @@ The new `useComprehensiveFilter` option applies enterprise-grade content cleanin
 ```typescript
 export function filterDocumentation(content: string, options: FilterOptions): string {
   let filtered = content;
-  
+
   // Stage 1: Navigation & UI elements
   if (options.filterNavigation) {
     filtered = removeNavigationElements(filtered);
     filtered = removeBreadcrumbs(filtered);
     filtered = removeSkipLinks(filtered);
   }
-  
+
   // Stage 2: Legal & boilerplate
   if (options.filterLegalBoilerplate) {
     filtered = removeCopyrightNotices(filtered);
     filtered = removePrivacyLinks(filtered);
     filtered = removeTermsOfService(filtered);
   }
-  
+
   // Stage 3: Platform-specific noise
   if (options.filterAvailability) {
     filtered = filterAvailabilityStrings(filtered);
     filtered = removeSDKVersionTables(filtered);
   }
-  
+
   // Stage 4: Structural optimization
   if (options.filterEmptyContent) {
     filtered = removeEmptySections(filtered);
     filtered = collapseWhitespace(filtered);
   }
-  
+
   // Stage 5: Content deduplication
   if (options.deduplicateContent) {
     filtered = deduplicateMarkdown(filtered);
   }
-  
+
   return filtered;
 }
 ```
@@ -374,6 +375,7 @@ export function filterDocumentation(content: string, options: FilterOptions): st
 #### Content Filtering Stages
 
 ##### Stage 1: Navigation Removal
+
 - "Skip Navigation" links
 - "On This Page" sections
 - Sidebar navigation traces
@@ -381,18 +383,21 @@ export function filterDocumentation(content: string, options: FilterOptions): st
 - Search box placeholders
 
 ##### Stage 2: URL Processing
+
 - Convert `[text](url)` → `text` (preserves context)
 - Remove standalone URLs (http://, https://, ftp://)
 - Strip `<URL>` formatted links
 - Clean protocol-relative URLs (//)
 
 ##### Stage 3: Platform Availability Filtering
+
 - Pattern: `iOS 14.0+iPadOS 14.0+Mac Catalyst 14.0+`
 - SDK requirement tables
 - Beta indicators
 - Deprecated notices (configurable)
 
 ##### Stage 4: Content Deduplication
+
 - Hash-based paragraph tracking
 - Preserves first occurrence
 - Maintains heading hierarchy
@@ -403,6 +408,7 @@ export function filterDocumentation(content: string, options: FilterOptions): st
   - Code blocks (preserved)
 
 ##### Stage 5: Whitespace Optimization
+
 - Collapse 3+ newlines to 2
 - Remove trailing spaces
 - Normalize line endings
@@ -496,8 +502,8 @@ const progressPercentage = Math.min(Math.round((processedUrls.size / maxUrlsToPr
 ```tsx
 // Example: Process button with Tailwind v4
 <button className="
-  bg-gradient-to-r from-primary to-primary/80 
-  text-primary-foreground 
+  bg-gradient-to-r from-primary to-primary/80
+  text-primary-foreground
   hover:from-primary/90 hover:to-primary/70
   disabled:from-muted disabled:to-muted/80
   shadow-lg shadow-primary/20
@@ -507,18 +513,21 @@ const progressPercentage = Math.min(Math.round((processedUrls.size / maxUrlsToPr
 ### 3. Interactive Features
 
 #### Domain Browser Popover
+
 - **Trigger**: "supports 69 documentation sites" link
 - **Content**: Categorized site list with examples
 - **Interaction**: Click to auto-fill URL field
 - **Performance**: Lazy-loaded Radix UI component
 
 #### Progress Visualization
+
 - Real-time percentage updates
 - Gradient progress bar (primary colors)
 - Activity log with timestamp prefixes
 - Smart auto-scroll (pauses on user scroll)
 
 #### Notification System
+
 - Browser permission request on first use
 - iOS detection and graceful fallback
 - 5-second auto-dismiss
@@ -600,7 +609,8 @@ const [stats, setStats] = useState({ lines: 0, size: 0, urls: 0 });
 const [showLogs, setShowLogs] = useState(false);
 const [showOptions, setShowOptions] = useState(false);
 const [showPopover, setShowPopover] = useState(false);
-const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+const [notificationPermission, setNotificationPermission] =
+  useState<NotificationPermission>('default');
 const [isIOS, setIsIOS] = useState(false);
 
 // Refs for performance optimization
@@ -614,7 +624,7 @@ const userScrollingRef = useRef(false);
 // Comprehensive error handling with user-friendly messages
 const handleError = (error: unknown, url: string) => {
   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-  
+
   if (errorMessage.includes('Invalid URL')) {
     log(`❌ Invalid URL format: ${url}`);
     setError('URL must start with https:// and be from a supported site');
@@ -726,16 +736,16 @@ const BATCH_SIZE = 20; // Optimal for Firecrawl API limits
 // Process multiple URLs concurrently
 for (let i = 0; i < urlsToProcess.length; i += BATCH_SIZE) {
   const batch = urlsToProcess.slice(i, i + BATCH_SIZE);
-  const batchPromises = batch.map(url => scrapeUrl(url));
+  const batchPromises = batch.map((url) => scrapeUrl(url));
   const batchResults = await Promise.all(batchPromises);
-  
+
   // Update progress after each batch
   const progress = Math.round((processedUrls.size / maxUrls) * 90);
   setProgress(progress);
-  
+
   // Rate limiting between batches
   if (i + BATCH_SIZE < urlsToProcess.length) {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 }
 ```
@@ -884,14 +894,12 @@ The project maintains 95%+ test coverage using Vitest:
 // Example: Parallel processing test
 describe('processUrlsWithDepth', () => {
   it('should process 20 URLs concurrently', async () => {
-    const urls = Array.from({ length: 50 }, (_, i) => 
-      `https://react.dev/learn/page-${i}`
-    );
-    
+    const urls = Array.from({ length: 50 }, (_, i) => `https://react.dev/learn/page-${i}`);
+
     const startTime = Date.now();
     const results = await processUrlsWithDepth(urls, 0, 0, 50);
     const duration = Date.now() - startTime;
-    
+
     // Should complete 50 URLs in ~3 batches (2.5s)
     expect(duration).toBeLessThan(3000);
     expect(results).toHaveLength(50);

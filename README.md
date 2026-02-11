@@ -14,7 +14,9 @@ A high-performance web service that converts JavaScript-heavy documentation site
 ## Technical Architecture
 
 ### Core Problem Solved
+
 Modern documentation sites (especially Apple's) use heavy JavaScript rendering that makes content invisible to AI agents. llm.codes solves this by:
+
 - Using Firecrawl's headless browser to execute JavaScript and capture fully-rendered content
 - Converting dynamic HTML to clean, semantic Markdown
 - Removing noise (navigation, footers, duplicate content) that wastes AI context tokens
@@ -148,14 +150,17 @@ llm.codes uses intelligent pattern matching to support most documentation sites 
 We support documentation sites that match these patterns:
 
 1. **Documentation Subdomains** (`docs.*, developer.*, learn.*, etc.`)
+
    - Examples: `docs.python.org`, `developer.apple.com`, `learn.microsoft.com`
    - Pattern: Any subdomain like docs, developer, dev, learn, help, api, guide, wiki, or devcenter
 
 2. **Documentation Paths** (`/docs, /guide, /learn, etc.`)
+
    - Examples: `angular.io/docs`, `redis.io/docs`, `react.dev/learn`
    - Pattern: URLs ending with paths like /docs, /documentation, /api-docs, /guides, /learn, /help, /stable, or /latest
 
 3. **Programming Language Sites** (`*js.org, *lang.org, etc.`)
+
    - Examples: `vuejs.org`, `kotlinlang.org`, `ruby-doc.org`
    - Pattern: Domains ending with js, lang, py, or -doc followed by .org or .com
 
@@ -195,6 +200,7 @@ If you find a documentation site that isn't supported, please [open an issue](ht
 The core API endpoint that handles documentation conversion.
 
 **Request Flow:**
+
 1. URL validation against allowed domains whitelist
 2. Cache check (Redis/in-memory with 30-day TTL)
 3. Firecrawl API call with optimized scraping parameters
@@ -202,6 +208,7 @@ The core API endpoint that handles documentation conversion.
 5. Response with markdown and cache status
 
 **Request Body:**
+
 ```json
 {
   "url": "https://developer.apple.com/documentation/swiftui",
@@ -210,6 +217,7 @@ The core API endpoint that handles documentation conversion.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -221,6 +229,7 @@ The core API endpoint that handles documentation conversion.
 ```
 
 **Error Handling:**
+
 - Domain validation errors (400)
 - Firecrawl API errors (500)
 - Network timeouts (504)
@@ -304,6 +313,7 @@ npm run type-check
 ```
 
 Tests cover:
+
 - URL validation and domain filtering
 - Content processing and deduplication
 - API error handling
@@ -347,6 +357,7 @@ For production use, we recommend setting up Redis cache:
 4. The app will automatically use Redis for caching
 
 Benefits:
+
 - Cache persists across deployments
 - Shared cache across all instances
 - Automatic compression for large documents
@@ -413,17 +424,20 @@ If you need support for a documentation site that's not listed, please [open an 
 ## Architecture Decisions
 
 ### Why Firecrawl?
+
 - Handles JavaScript-heavy sites that traditional scrapers can't parse
 - Built-in markdown conversion with semantic structure preservation
 - Reliable headless browser automation at scale
 
 ### Why Next.js 15 + App Router?
+
 - Server-side API key security
 - Built-in caching with fetch()
 - Streaming responses for large documentation sets
 - Edge-ready deployment on Vercel
 
 ### Why Client-Side Processing?
+
 - Reduces server load for filtering operations
 - Enables real-time UI updates during processing
 - Allows users to customize output without re-fetching
