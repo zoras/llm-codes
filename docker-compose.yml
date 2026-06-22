@@ -1,0 +1,9 @@
+services:
+  llm-codes:
+    build: .
+    restart: always
+    environment:
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
+      - CACHE_ADMIN_KEY=${CACHE_ADMIN_KEY}
